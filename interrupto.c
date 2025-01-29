@@ -15,11 +15,18 @@ const uint button_b = 6;
 static volatile uint a = 1 ;
 static void gpio_irq_handler(uint gpio,uint32_t events);
 
+//para o state machine
+PIO pio = pio0; 
+uint sm;
+bool ok;
+uint offset;
+
+
 // Definições de constantes
 #define LED_COUNT 25                // Número de LEDs na matriz
 #define LED_PIN 7                   // Pino GPIO conectado aos LEDs
-#define FPS 3  // VER SE È MELHOR USAR ISTO PARA CONTROLE DO TEMPO DO LED VERMELHO
-
+#define FPS 10  // frames por segundo, indica que o LED vai piscar 10 vezes por segundo
+const int interval=1000/FPS; //intervalo de 100 ms
 
 // Anibal Maldonado - Índices da minha matriz de desenho na ordem desejada
 int ordem[] = {0,1, 2, 3, 4,9 , 8, 7,6,5, 10,11,12,13,14,19,18,17,16,15,20,21,22,23,24}; 
@@ -73,39 +80,19 @@ void desenho_pio(int desenho[][25], uint32_t valor_led, PIO pio, uint sm, double
 
 void gpio_irq_handler(uint gpio,uint32_t events)
 {
-    PIO pio = pio0; 
-    bool ok;
+    
     uint16_t i;
     uint32_t valor_led;
     double r = 0.0, b = 0.0 , g = 0.0;
     
    //coloca a frequência de clock para 128 MHz, facilitando a divisão pelo clock
-    ok = set_sys_clock_khz(128000, false);
+    //ok = set_sys_clock_khz(128000, false);
 
+    //if (ok) printf("clock set to %ld\n", clock_get_hz(clk_sys));
 
-    printf("iniciando a transmissão PIO");
-    if (ok) printf("clock set to %ld\n", clock_get_hz(clk_sys));
-
-    //configurações da PIO
-    uint offset = pio_add_program(pio, &interrupto_program);
-    uint sm = pio_claim_unused_sm(pio, true);
-    interrupto_program_init(pio, sm, offset, LED_PIN);
-    // fim parte da função Anibal
-    
-    
-    if (gpio == button_a) {
-        // Ações específicas para o botão A
-        direcao = (direcao < 9) ? direcao + 1 : 9;
-        if(direcao==10){direcao=9;}
-            desenho_pio(desenho, valor_led, pio, sm, r, g, b,direcao);
-    } else if (gpio == button_b) {
-        // Ações específicas para o botão B
-        direcao = (direcao > 0) ? direcao - 1 : 0;
-        if(direcao==-1){direcao=0;}
-        desenho_pio(desenho, valor_led, pio, sm, r, g, b,direcao);
-    } else {
-        printf("Interrupção em GPIO desconhecido: %d\n", gpio);
-    }    
+    direcao=(gpio==button_a)?((direcao<9)?direcao+1:9):((direcao>0)?direcao-1:0);
+    desenho_pio(desenho, valor_led, pio, sm, r, g, b,direcao);
+ 
 }
 
 int main() {
@@ -120,6 +107,10 @@ int main() {
     gpio_pull_up(button_a);
     gpio_pull_up(button_b);
 
+    //configurações da PIO
+    offset=offset = pio_add_program(pio, &interrupto_program);
+    sm = pio_claim_unused_sm(pio, true);
+    interrupto_program_init(pio, sm, offset, LED_PIN);
 
     //stdio_init_all(); // Inicializa a comunicação serial (opcional)
     gpio_set_irq_enabled_with_callback(button_a,GPIO_IRQ_EDGE_FALL, true,&gpio_irq_handler);
@@ -128,10 +119,11 @@ int main() {
     
     
     while (true) {
+        //em 1 segundo completa 10 ciclos de acender e apagar
         gpio_put(led_pin_red, true); // Acende o LED vermelho
-        sleep_ms(100);             // Mantém aceso por 0.1 segundo
+        sleep_ms(interval/2);             // Mantém aceso por um intervalo de 50 milisegundos
         gpio_put(led_pin_red, false); // Apaga o LED vermelho
-        sleep_ms(100);             // Mantém apagado por 0.1 segundo
+        sleep_ms(interval/2);             // Mantém apagado por um intervalo de 50 milisegundos
     }
 
     return 0;
