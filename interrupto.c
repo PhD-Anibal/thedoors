@@ -8,6 +8,8 @@
 #include "hardware/gpio.h"
 #include "Interrupto.pio.h" // Biblioteca PIO para controle de LEDs WS2818B
 #include "numeros.h"
+#include "hardware/timer.h" // Inclui a biblioteca para gerenciamento de temporizadores de hardware.
+
 
 const uint led_pin_red = 13; // porta do pino 13 LED RGB Vermelho
 const uint button_a = 5;
@@ -21,11 +23,26 @@ uint sm;
 bool ok;
 uint offset;
 
+//usei temporizador de hardware Anibal
+bool led_on = false;
+// Função de callback que será chamada repetidamente pelo temporizador
+// O tipo bool indica que a função deve retornar verdadeiro ou falso para continuar ou parar o temporizador.
+bool repeating_timer_callback(struct repeating_timer *t) {
+    // Imprime uma mensagem na saída serial indicando que 1 segundo se passou.
+    //printf("1 segundo passou\n");
+    //Liga ou desliga o led.
+    led_on = !led_on;
+    gpio_put(led_pin_red,led_on);
+    // Retorna true para manter o temporizador repetindo. Se retornar false, o temporizador para.
+    return true;
+}
 
 // Definições de constantes
 #define LED_COUNT 25                // Número de LEDs na matriz
 #define LED_PIN 7                   // Pino GPIO conectado aos LEDs
 #define FPS 10  // frames por segundo, indica que o LED vai piscar 10 vezes por segundo
+#define DEBOUNCE_DELAY 100  //tempo de debounce em milisegundos
+volatile uint32_t last_interrupt_time=0; //almaçenamos o tempo da ultima interrupção
 const int interval=1000/FPS; //intervalo de 100 ms
 
 // Anibal Maldonado - Índices da minha matriz de desenho na ordem desejada
@@ -85,13 +102,14 @@ void gpio_irq_handler(uint gpio,uint32_t events)
     uint32_t valor_led;
     double r = 0.0, b = 0.0 , g = 0.0;
     
-   //coloca a frequência de clock para 128 MHz, facilitando a divisão pelo clock
-    //ok = set_sys_clock_khz(128000, false);
-
-    //if (ok) printf("clock set to %ld\n", clock_get_hz(clk_sys));
-
-    direcao=(gpio==button_a)?((direcao<9)?direcao+1:9):((direcao>0)?direcao-1:0);
-    desenho_pio(desenho, valor_led, pio, sm, r, g, b,direcao);
+    //sleep_ms(50); // para o deboucing prevenindo a trepidação
+    uint32_t current_time=to_ms_since_boot(get_absolute_time()); //obtem o tempo atual em miliseguundos
+    if(current_time-last_interrupt_time>DEBOUNCE_DELAY){
+        last_interrupt_time=current_time; //atualiza
+        direcao=(gpio==button_a)?((direcao<9)?direcao+1:9):((direcao>0)?direcao-1:0);
+        desenho_pio(desenho, valor_led, pio, sm, r, g, b,direcao);    
+    }
+    
  
 }
 
@@ -107,24 +125,31 @@ int main() {
     gpio_pull_up(button_a);
     gpio_pull_up(button_b);
 
-    //configurações da PIO
+   
+        //configurações da PIO
     offset=offset = pio_add_program(pio, &interrupto_program);
     sm = pio_claim_unused_sm(pio, true);
     interrupto_program_init(pio, sm, offset, LED_PIN);
+
+    // Apaga todos os LEDs da matriz ao iniciar
+    uint32_t valor_led = matrix_rgb(0.0, 0.0, 0.0);
+    for (int i = 0; i < LED_COUNT; i++) {
+        pio_sm_put_blocking(pio, sm, valor_led);
+    }
+
 
     //stdio_init_all(); // Inicializa a comunicação serial (opcional)
     gpio_set_irq_enabled_with_callback(button_a,GPIO_IRQ_EDGE_FALL, true,&gpio_irq_handler);
     gpio_set_irq_enabled_with_callback(button_b,GPIO_IRQ_EDGE_FALL, true,&gpio_irq_handler);
     
     
-    
-    while (true) {
-        //em 1 segundo completa 10 ciclos de acender e apagar
-        gpio_put(led_pin_red, true); // Acende o LED vermelho
-        sleep_ms(interval/2);             // Mantém aceso por um intervalo de 50 milisegundos
-        gpio_put(led_pin_red, false); // Apaga o LED vermelho
-        sleep_ms(interval/2);             // Mantém apagado por um intervalo de 50 milisegundos
-    }
+    struct repeating_timer timer;
+    // Configura o temporizador para chamar a função de callback a cada 0.2 segundo. 5 vezes por seg ligado e 5 desl
+    add_repeating_timer_ms(200, repeating_timer_callback, NULL, &timer);
 
+    while (true) {
+
+    }
+    
     return 0;
 }
