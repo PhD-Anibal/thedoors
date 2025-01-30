@@ -78,15 +78,6 @@ void desenho_pio(int desenho[][25], uint32_t valor_led, PIO pio, uint sm, double
                     case 1: 
                         valor_led = matrix_rgb(b=1, r=0.0, g=0.0);
                         break;
-                    case 2:
-                        valor_led = matrix_rgb(b=0.0, r=1, g=0.0);
-                        break;
-                    case 3:
-                        valor_led = matrix_rgb(b=0.0, r=0.0, g=1);
-                        break;
-                    case 4:
-                        valor_led = matrix_rgb(b=0.2, r=1, g=0.9);
-                        break;
                 }
 
                 pio_sm_put_blocking(pio, sm, valor_led);
