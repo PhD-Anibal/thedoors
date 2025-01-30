@@ -144,8 +144,8 @@ int main() {
     
     
     struct repeating_timer timer;
-    // Configura o temporizador para chamar a função de callback a cada 0.2 segundo. 5 vezes por seg ligado e 5 desl
-    add_repeating_timer_ms(200, repeating_timer_callback, NULL, &timer);
+    // Configura o temporizador para chamar a função de callback a cada 0.1 segundo. 5 vezes por seg ligado e 5 desl
+    add_repeating_timer_ms(100, repeating_timer_callback, NULL, &timer);
 
     while (true) {
 
