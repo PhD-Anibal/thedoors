@@ -123,6 +123,7 @@ int main() {
 
     while (true) {
         // Loop infinito mantendo o programa em execução
+        tight_loop_contents();
     }
     
     return 0;
