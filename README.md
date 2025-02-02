@@ -64,12 +64,12 @@ Este projeto utiliza um Raspberry Pi Pico para controlar uma matriz de 25 LEDs W
    
    ![compilacao](TP_compilar.jpg)
    
-4. Com a placa BitDogLab conectada no computador em modo Bootcel envie o arquivo `.uf2` gerado
+3. Com a placa BitDogLab conectada no computador em modo Bootsel envie o arquivo `.uf2` gerado
 
-5. Esquema de conexões caso não tenha a placa BitDogLab
+4. Esquema de conexões caso não tenha a placa BitDogLab
    
    ![esquema de conexões na placa](TP_U4.jpg)
-6. **Pressione os botões** para alternar os padrões exibidos na matriz.
+5. **Pressione os botões** para alternar os padrões exibidos na matriz.
 
 ## 🚀 Melhorias Futuras
 - Adicionar novos padrões de animação
