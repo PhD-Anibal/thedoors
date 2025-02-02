@@ -59,7 +59,7 @@ Link de Youtube apresentando o funcionamento do projeto: https://youtu.be/oF3cpT
 ## ▶️ Como Instalar
 1. Clone este repositório:
    
-        git clone [https://github.com/JoseBrunoSouza/Subgrupo-7.git](https://github.com/PhD-Anibal/interrupto.git)
+        git clone https://github.com/JoseBrunoSouza/Subgrupo-7.git
 2. Compile o código::
 
        No SDK do VS code aaperte em compilar segundo imagem
