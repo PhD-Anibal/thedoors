@@ -2,6 +2,7 @@
 
 ## 📌 Descrição
 Este projeto utiliza um Raspberry Pi Pico para controlar uma matriz de 25 LEDs WS2812B. O código gerencia a exibição de padrões na matriz e inclui a configuração de botões para alternar os padrões de exibição. Além disso, há um LED vermelho separado que pisca a cada 100 ms.
+Link de Youtube apresentando o funcionamento do projeto: https://youtu.be/oF3cpTAA-Kk
 
 ## 🛠️ Tecnologias Utilizadas
 - **Linguagem:** C
