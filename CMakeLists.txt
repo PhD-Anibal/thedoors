@@ -28,41 +28,44 @@ set(PICO_BOARD pico_w CACHE STRING "Board type")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(interrupto C CXX ASM)
+project(doors C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(interrupto interrupto.c numeros.c)
+add_executable(doors doors.c numeros.c inc/ssd1306.c)
 
-pico_set_program_name(interrupto "interrupto")
-pico_set_program_version(interrupto "0.1")
+pico_set_program_name(doors "doors")
+pico_set_program_version(doors "0.1")
 
 # Anibal - Generate PIO header
-pico_generate_pio_header(interrupto ${CMAKE_CURRENT_LIST_DIR}/Interrupto.pio)
+pico_generate_pio_header(doors ${CMAKE_CURRENT_LIST_DIR}/doors.pio)
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(interrupto 1)
-pico_enable_stdio_usb(interrupto 1)
+pico_enable_stdio_uart(doors 1)
+pico_enable_stdio_usb(doors 1)
 
 # Add the standard library to the build
-target_link_libraries(interrupto
-        pico_stdlib)
+target_link_libraries(doors
+        pico_stdlib 
+)
 
 # Add the standard include files to the build
-target_include_directories(interrupto PRIVATE
+target_include_directories(doors PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
 )
 
+
 # Add any user requested libraries
-target_link_libraries(interrupto 
+target_link_libraries(doors 
 hardware_pio
 hardware_clocks
 hardware_pwm
 hardware_adc
+hardware_i2c
 )
 
-pico_add_extra_outputs(interrupto)
+pico_add_extra_outputs(doors)
 
