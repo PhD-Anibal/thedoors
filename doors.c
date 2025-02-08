@@ -164,9 +164,7 @@ int main() {
     gpio_set_irq_enabled_with_callback(button_a,GPIO_IRQ_EDGE_FALL, true,&gpio_irq_handler);
     gpio_set_irq_enabled_with_callback(button_b,GPIO_IRQ_EDGE_FALL, true,&gpio_irq_handler);
 
-    while (true) {
-        // Loop infinito mantendo o programa em execução
-        //tight_loop_contents();
+    while (true) {  // Loop infinito mantendo o programa em execução
         if(stdio_usb_connected()){
             char c;
             if(scanf("%c",&c)==1){
