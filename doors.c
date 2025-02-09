@@ -6,7 +6,6 @@
 #include "hardware/gpio.h"
 #include "doors.pio.h" // Biblioteca PIO para manipulação de LEDs WS2818B
 #include "numeros.h"        
-#include "hardware/timer.h" // Biblioteca para controle de temporizadores de hardware
 #include "hardware/i2c.h"
 #include "inc/ssd1306.h"
 #include "inc/font.h"
@@ -23,7 +22,7 @@ bool cor = true;
 // Definições de constantes
 #define LED_COUNT 25                // Número total de LEDs na matriz
 #define LED_PIN 7                   // Pino GPIO utilizado para os LEDs
-#define DEBOUNCE_DELAY 100  // Tempo de debounce para evitar múltiplas detecções de um único toque
+#define DEBOUNCE_DELAY 150  // Tempo de debounce para evitar múltiplas detecções de um único toque
 volatile uint32_t last_interrupt_time=0; // Armazena o tempo da última interrupção
 
 const uint led_pin_green = 11; // Pino do LED RGB (cor verde)
@@ -90,17 +89,16 @@ void gpio_irq_handler(uint gpio,uint32_t events)
             printf(led_green_on ? "Acabou de ligar o led verde\n" : "Acabou de desligar o led verde\n");
             
             ssd1306_fill(&ssd, !cor); // Limpa o display
-            ssd1306_draw_string(&ssd, "APERTOU O BOTÂO A", 5, 10); // Desenha uma string      
-            ssd1306_send_data(&ssd); // Atualiza o display
-            //sleep_ms(500);            
+            ssd1306_draw_string(&ssd, "Apertou o Botao A", 5, 10); // Desenha uma string      
+            ssd1306_send_data(&ssd); // Atualiza o display          
         }
         if(gpio==button_b){
             led_blue_on = !led_blue_on;
             gpio_put(led_pin_blue,led_blue_on);
-            printf(led_blue_on ? "Acabou de ligar o led azul\n" : "Acabou de desligar o led verde\n");
+            printf(led_blue_on ? "Acabou de ligar o led azul\n" : "Acabou de desligar o led azul\n");
             
             ssd1306_fill(&ssd, !cor); // Limpa o display
-            ssd1306_draw_string(&ssd, "APERTOU O BOTÂO B", 5, 10); // Desenha uma string      
+            ssd1306_draw_string(&ssd, "Apertou o Botao B", 5, 10); // Desenha uma string      
             ssd1306_send_data(&ssd); // Atualiza o display
             //sleep_ms(500);            
         }
